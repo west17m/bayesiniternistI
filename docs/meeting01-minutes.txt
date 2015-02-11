@@ -1,0 +1,151 @@
+Discussion
+
+Use python for coding- helpful with matrices
+
+Terminal interface (may decide to add GUI later on)
+
+Use Github to share code
+
+Output- rank order ddx of diseases
+
+Limited to 10 diseases
+
+
+
+P(D|M) = P(D) + P(M|D)
+
+                      P(M)
+
+
+
+Evoking Strength= PPV
+
+Specificity /Sensitivity
+
+Impact Factor
+
+Prevalence
+
+
+
+Definitions:
+
+-Sensitivity (also called the true positive rate, or the recall rate in some fields) measures the proportion of actual positives which are correctly identified as such (e.g., the percentage of sick people who are correctly identified as having the condition)
+
+-Specificity (sometimes called the true negative rate) measures the proportion of negatives which are correctly identified as such (e.g., the percentage of healthy people who are correctly identified as not having the condition)
+
+
+
+Division
+
+Input interface: Travis & Yaa
+
+Knowledge Base/ paring: Travis & Ivo
+
+Algorithm: Jason & Yaa
+
+Test set: Ivo & Jason (StarPanel and NEJM cases)
+
+
+
+Next Meeting
+
+Try to meet again 2/25
+
+
+
+Assignment (from OAK)
+
+Assignment Description:  Create clinical decision support systems (1 per team) using either Internist-I algorithm (Team 1) or Bayes’ Rule (Team 2)
+
+
+
+Due in approve 4-6 weeks from data of assignment.  Special session to be arranged for review of results.
+
+
+
+The system will take as input finding names (correctly spelled)
+
+The finding names are the names from the two text files provided:
+
+                        Diseases_for_2015_decision_support_exercise_copy.txt, and
+
+                        Findings_for_2015_decision_support_exercise.txt
+
+
+
+Each finding will be preceded by a plus (+) sign or a minus (-) sign (as entered by the user) to indicate that the finding is present or absent in the case.
+
+When a dollar ($) sign is input, the system will generate a rank-ordered differential diagnosis for the diseases that are named in the file Diseases_for_2015_decision_support_exercise_copy.txt
+
+
+
+Note that there are 10 diseases identified in the diseases file.
+
+Therefore, for this exercise, a master differential diagnosis list would contain
+
+a maximum of 10 diseases:
+
+
+
+DATA file (knowledge base) structure:
+
+
+
+(A) PDF file showing 10 diseases and their prevalences
+
+
+
+(B) Diseases_for_2015_decision_support_exercise_copy.txt
+
+Example:
+
+TUBERCULOSIS CHRONIC PULMONARY
+
+MX 02 198 AGE 16 TO 25
+
+MX 03 199 AGE 26 TO 55
+
+MX 03 200 AGE GTR THAN 55
+
+MX 12 208 ALCOHOLISM CHRONIC HX
+
+
+
+For MX 12 208 ALCOHOLISM CHRONIC HX:
+
+MX
+
+1 =     PPV (0 to 5 scale)
+
+2 =     Sensitivity (1 to 5 scale)
+
+208 = Finding number (always 3 or 4 digits)
+
+ALCOHOLISM CHRONIC HX = Finding name
+
+
+
+
+
+(C) Findings_for_2015_decision_support_exercise.txt
+
+Example:
+
+MX 1021 CONJUNCTIVA AND/OR MOUTH PALLOR
+
+IM 2
+
+TY 3
+
+
+
+MX
+
+1021 = Finding Number
+
+CONJUNCTIVA AND/OR MOUTH PALLOR = Finding Name
+
+IM =    Import (a single digit number from 1 to 5)
+
+TY =   Type (NOTE:  TYPE IS NOT USED IN THE CURRENT EXERCISE)
