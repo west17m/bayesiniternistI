@@ -7,6 +7,7 @@
 import sys
 import os
 import pandas as pd
+import argparse
 
 class BayesInternsist:
 
@@ -21,7 +22,6 @@ class BayesInternsist:
   #
   def __init__(self):
     symptoms = pd.DataFrame(columns=['pos_neg','symptom'])
-    self.run()
 
   #
   # display the help dialog when a user presses '?'
@@ -53,10 +53,31 @@ class BayesInternsist:
     return True
 
   #
-  # run the program
+  # add a finding to the symptoms frame
   #
-  def run(self):
+  def add_finding(self,string):
+    # at this point everything should be validated
+    # @todo divide string into +/- and finding
+    # @todo add to dataframe
+    pass
 
+  #
+  # tests
+  #
+  def run_tests(self):
+    # @todo add tests to test the following functionality
+    #   1. constructor creates empty symtpom frame with two-columns
+    #   2. constructor creates kb frame
+    #   3. if pickled file exists, kb uses that
+    #   4. if pickled file does not exist, kb parses text file
+    #   5. graceful handling of kb text file not existing
+    #   6. saving kb as pickle file
+    #   7. validating user input (validate())
+    #   8. suite of findings and for diseases
+    #
+    pass
+
+  def interactive(self):
     # Clear the screen.
     os.system('clear')
 
@@ -78,11 +99,41 @@ class BayesInternsist:
           pass
         else:
           # if legal input
+          self.add_finding(command)
           pass
 
 
 ###############################################################################
+#
 # This will be called from the command line if no arguments are given
+# run from the command line with --help for options
+#
 ###############################################################################
 if __name__ == '__main__':
+  parser = argparse.ArgumentParser()
+  group = parser.add_mutually_exclusive_group()
+  group.add_argument("-i","--interactive", help="launch interactive mode",action="store_true")
+  group.add_argument("-t","--test", help="perform unit testing",action="store_true")
+  parser.add_argument("-v","--verbose", help="increase output verbosity",action="store_true")
+  args = parser.parse_args()
+
+  # set defaults
+  (verbose,test,interactive) = (False,False,True)
+  if args.verbose:
+    verbose = True
+  if args.test:
+    test = True
+    interactive = False
+  if args.interactive:
+    test = False
+    interactive = True
+
+  # create object
   bi = BayesInternsist()
+
+  if test:
+    bi.run_tests()
+  elif interactive:
+    bi.interactive()
+  else:
+    raise Exception('illegal argument sent, terminating')
