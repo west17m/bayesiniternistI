@@ -25,7 +25,6 @@ class BayesInternsist:
   def __init__(self):
 
     self.setup_logging()
-
     self.logger.debug('started logger')
 
     symptoms = pd.DataFrame(columns=['pos_neg','symptom'])
@@ -53,6 +52,7 @@ class BayesInternsist:
   # display the help dialog when a user presses '?'
   ####
   def print_help(self):
+    self.logger.debug('displayed help')
     string = ""
     s = [
       "command help",
@@ -68,6 +68,8 @@ class BayesInternsist:
   # show prompt
   ####
   def get_user_choice(self):
+    self.logger.debug('soliciting user choice')
+
     # Let users know what they can do.
     sys.stdout.write('enter symptom (? for help) # ')
     return raw_input("")
@@ -76,6 +78,7 @@ class BayesInternsist:
   # validate input
   ####
   def validate(self,string):
+    self.logger.debug('validating user input of ' + string)
     # @todo insert validation logic
     return True
 
@@ -83,6 +86,7 @@ class BayesInternsist:
   # add a finding to the symptoms frame
   ####
   def add_finding(self,string):
+    self.logger.debug('adding finding')
     # at this point everything should be validated
     # @todo divide string into +/- and finding
     # @todo add to dataframe
@@ -92,6 +96,7 @@ class BayesInternsist:
   # tests
   ####
   def run_tests(self):
+    self.logger.debug('running unit tests')
     # @todo add tests to test the following functionality
     #   1. constructor creates empty symtpom frame with two-columns
     #   2. constructor creates kb frame
@@ -109,6 +114,7 @@ class BayesInternsist:
   # interactive
   ####
   def interactive(self):
+    self.logger.debug('beginning interactive mode')
     # Clear the screen.
     os.system('clear')
 
@@ -117,9 +123,11 @@ class BayesInternsist:
     quit = False
 
     while not quit:
+      self.logger.debug('getting additional finding')
       command = self.get_user_choice()
 
       if command == 'q':
+        self.logger.debug('received quit command')
         quit = True
       elif command == '?':
         self.print_help()
@@ -164,6 +172,7 @@ if __name__ == '__main__':
 
   # create object
   bi = BayesInternsist()
+  bi.logger.debug('BayesInternsist called from command-line')
 
   if test:
     # perform unit tests
@@ -172,4 +181,8 @@ if __name__ == '__main__':
     # run in interactive mode
     bi.interactive()
   else:
+    bi.logger.error('illegal argument sent')
     raise Exception('illegal argument sent, terminating')
+
+  bi.logger.debug('application finished without error')
+  sys.exit(0)
