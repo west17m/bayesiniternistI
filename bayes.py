@@ -8,6 +8,7 @@ import sys
 import os
 import pandas as pd
 import argparse
+import logging
 
 class BayesInternsist:
 
@@ -16,16 +17,41 @@ class BayesInternsist:
   instructions=""
 
   symptoms = None  # holds signs/symtpom input
+  logger   = None  # logging
 
-  #
+  ####
   # constructor
-  #
+  ####
   def __init__(self):
+
+    self.setup_logging()
+
+    self.logger.debug('started logger')
+
     symptoms = pd.DataFrame(columns=['pos_neg','symptom'])
 
-  #
+  ####
+  # setup_logging
+  ####
+  def setup_logging(self):
+    # create logging framework
+    # @see http://victorlin.me/posts/2012/08/26/good-logging-practice-in-python
+    self.logger = logging.getLogger(__name__)
+    self.logger.setLevel(logging.DEBUG)
+
+    # create a file handler
+    handler = logging.FileHandler('bayes.log')
+
+    # create a logging format
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+
+    # add the handlers to the logger
+    self.logger.addHandler(handler)
+
+  ####
   # display the help dialog when a user presses '?'
-  #
+  ####
   def print_help(self):
     string = ""
     s = [
@@ -37,33 +63,33 @@ class BayesInternsist:
       string += str + "\n"
     print string
 
-  #
+  ####
   # show prompt
-  #
+  ####
   def get_user_choice(self):
     # Let users know what they can do.
     sys.stdout.write('enter symptom (? for help) # ')
     return raw_input("")
 
-  #
+  ####
   # validate input
-  #
+  ####
   def validate(self,string):
     # @todo insert validation logic
     return True
 
-  #
+  ####
   # add a finding to the symptoms frame
-  #
+  ####
   def add_finding(self,string):
     # at this point everything should be validated
     # @todo divide string into +/- and finding
     # @todo add to dataframe
     pass
 
-  #
+  ####
   # tests
-  #
+  ####
   def run_tests(self):
     # @todo add tests to test the following functionality
     #   1. constructor creates empty symtpom frame with two-columns
@@ -77,6 +103,10 @@ class BayesInternsist:
     #
     pass
 
+
+  ####
+  # interactive
+  ####
   def interactive(self):
     # Clear the screen.
     os.system('clear')
@@ -107,6 +137,7 @@ class BayesInternsist:
 #
 # This will be called from the command line if no arguments are given
 # run from the command line with --help for options
+# @see https://docs.python.org/2/howto/argparse.html
 #
 ###############################################################################
 if __name__ == '__main__':
@@ -132,8 +163,10 @@ if __name__ == '__main__':
   bi = BayesInternsist()
 
   if test:
+    # perform unit tests
     bi.run_tests()
   elif interactive:
+    # run in interactive mode
     bi.interactive()
   else:
     raise Exception('illegal argument sent, terminating')
