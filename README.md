@@ -10,5 +10,15 @@ This is the Bayesian implementation of InternistI knowledge base.
     * Diseases_for_2015_decision_support_exercise_v03.txt
     * Findings_for_2015_decision_support_exercise_v03.txt
     * optionally the assignment instructions
-3. run __init__.py from your command line or IDE
+3. run bayes.py from your command line or IDE
 
+## Development Notes
+* logging can be done with
+  * self.logger.debug('debug message')
+  * self.logger.info('info message')
+  * self.logger.warn('warning message')
+  * self.logger.error('error message')
+* bayes.py --help will show contextual help
+* dependencies: pandas
+* @todo denotes tasks that need completed
+* spacing for indention is set at two spaces

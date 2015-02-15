@@ -148,6 +148,8 @@ if __name__ == '__main__':
   parser.add_argument("-v","--verbose", help="increase output verbosity",action="store_true")
   args = parser.parse_args()
 
+  # @todo add log level to commandline
+
   # set defaults
   (verbose,test,interactive) = (False,False,True)
   if args.verbose:
