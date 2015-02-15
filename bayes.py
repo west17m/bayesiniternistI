@@ -57,6 +57,7 @@ class BayesInternsist:
     s = [
       "command help",
       "? - display this message",
+      "q - quit",
       ]
     string = ""
     for str in s:
