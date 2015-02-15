@@ -2,6 +2,10 @@
 ##################
 data/*
 
+# ninja IDE files #
+###################
+*.nja
+
 # Compiled source #
 ###################
 *.com
