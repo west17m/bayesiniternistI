@@ -1,4 +1,4 @@
-# Bayes 316B Team Project
+# Bayes 315 Team Project
 
 This is the Bayesian implementation of InternistI knowledge base.
 
