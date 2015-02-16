@@ -19,6 +19,15 @@ class BayesInternsist:
   symptoms = None  # holds signs/symtpom input
   logger   = None  # logging
 
+  diseases_txt_path = 'data/Diseases_for_2015_decision_support_exercise_v03.txt'
+  findings_txt_path = 'data/Findings_for_2015_decision_support_exercise_v03.txt'
+
+  diseases_dat_path = 'data/diseases.dat'
+  findings_dat_path = 'data/findings.dat'
+
+  diseases = None
+  findings = None
+
   ####
   # constructor
   ####
@@ -28,6 +37,46 @@ class BayesInternsist:
     self.logger.debug('started logger')
 
     symptoms = pd.DataFrame(columns=['pos_neg','symptom'])
+    self.open_kb()
+
+  ####
+  # open knowledge base
+  ####
+  def open_kb(self):
+
+    self.logger.debug('attempting to open knowledge base')
+
+    # @todo check for parent directory
+
+    # check to see if pickle files exists
+    if os.path.isfile(self.diseases_dat_path):
+      self.logger.debug('loading disease kb from saved file')
+      self.diseases = pd.io.pickle.read_pickle(self.diseases_dat_path)
+    elif os.path.isfile(self.diseases_txt_path):
+      self.logger.debug('parsing disease kb from text file')
+      # @todo parse disease txt file
+      self.logger.debug('saving disease kb binary to disk')
+      # self.diseases.to_pickle(self.diseases_dat_path)
+    else:
+      self.logger.debug('cannot find disease kb in either ' + \
+        self.diseases_txt_path + ' or ' + self.diseases_txt_path)
+      sys.exit(1)
+
+    # check to see if pickle files exists
+    if os.path.isfile(self.findings_dat_path ):
+      self.logger.debug('loading findings kb from saved file')
+      self.diseases = pd.io.pickle.read_pickle(self.findings_dat_path)
+    elif os.path.isfile(self.findings_txt_path):
+      self.logger.debug('parsing findings kb from text file')
+      # @todo parse findings txt file
+      self.logger.debug('saving findings kb binary to disk')
+      # self.findings.to_pickle(self.findings_dat_path)
+    else:
+      self.logger.debug('cannot find findings kb in either ' + \
+        self.findings_txt_path + ' or ' + self.findings_txt_path)
+      sys.exit(1)
+
+
 
   ####
   # setup_logging
@@ -56,8 +105,8 @@ class BayesInternsist:
     string = ""
     s = [
       "command help",
-      "? - display this message",
-      "q - quit",
+      "?  - display this message",
+      "q  - quit",
       ]
     string = ""
     for str in s:
