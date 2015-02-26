@@ -12,6 +12,7 @@ result=pd.DataFrame(data,columns=['Disease','Prevalence'])
 result=result.set_index('Disease')
 result['Numerator']=result['Prevalence']
 result['Denominator']=1-result['Prevalence']
+result['Tracker']=0
 
 #TEST df and values representing knowledge base
 data = {'Disease': disease}
@@ -20,6 +21,7 @@ df['Manifestation']=1
 df['ppv']=0.6
 df['sens']=0.4
 df=df.set_index('Disease')
+df.loc[187,'ppv']=0
 
 # test values for manifestation and sign
 mx = 1
@@ -41,18 +43,20 @@ for index in range(len(disease)):
             # get sensitivity and prevalance, calculate fdr 
             sens = row.iloc[0]['sens']
             prev = result.loc[disease[index],'Prevalence']
-            fdr = (((sens*prev)/ppv)-(sens*prev))/(1-prev)
+            fdr = 1 - sens
+            result.loc[disease[index],'Tracker'] += 1
             # Based on the finding being + or -, multiply by appropriate factors
             if sign=='+':
                 result.loc[disease[index],'Numerator']*=sens
                 result.loc[disease[index], 'Denominator']*=fdr
             else:
                 falseOrate = 1-sens
-                spec = 1 - fdr
+                spec = 1-(((sens*prev)/ppv)-(sens*prev))/(1-prev)
                 result.loc[disease[index],'Numerator']*=falseOrate
                 result.loc[disease[index], 'Denominator']*=spec
                 
 #//calc conditional probabilities for each row
+result = result[result.Tracker != 0] #get rid of diseases with no findings
 result['Results']=result['Numerator']/(result['Numerator']+result['Denominator'])
 
 # TO DO: output differential dx in rank order and with names instead of numbers for diseases                
