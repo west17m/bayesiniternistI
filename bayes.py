@@ -175,9 +175,24 @@ class BayesInternsist:
       return
 
     joined = pd.DataFrame.merge(self.symptoms,self.kb.findings,left_on='finding_id',right_on='id')[['negation_status_human','mx']]
+
+    self.logger.debug('creating patterns')
+    p1 = re.compile('^\s*\+')
+    p2 = re.compile('^\s*\-')
+    self.logger.debug('patterns created')
+
     for index, row in joined.iterrows():
+
       text = '\t' + row['negation_status_human'] + ' ' + row['mx'].lower()
-      print colored(text,'green')
+      self.logger.debug('testing ' + text)
+
+      if p1.search(text):
+        print colored(text,'green')
+      elif p2.search(text):
+        print colored(text,'red')
+      else:
+        self.logger.debug('unexpected string ' + text)
+        sys.exit(1)
     print
 
   ####
