@@ -11,6 +11,7 @@ import pandas as pd
 import argparse
 import logging
 import numpy as np
+from termcolor import colored # https://pypi.python.org/pypi/termcolor
 
 class BayesInternsist:
 
@@ -124,10 +125,18 @@ class BayesInternsist:
       choices['finding'] = t['mx'].values
 
       self.logger.debug('printing user choices')
+
+      i=0
       for index, row in choices.iterrows():
-        print row['choice'],'\t',row['finding'].lower()
+        text = str(row['choice']) + '\t' + row['finding'].lower()
+        if i % 2:
+          print colored(text,'cyan',attrs=['reverse'])
+        else:
+          print colored(text,'white',attrs=['reverse'])
+        i += 1
 
       self.logger.debug('waiting for user response')
+      print
       number = self.get_user_choice('choose number of finding: ')
 
       # @todo ensure numeric input and of reasonable range
@@ -153,27 +162,11 @@ class BayesInternsist:
       return True
     else:
       self.logger.debug('unmatched ' + string)
-      print 'I can\'t seem to find that finding, please try again'
+      print 'I can\'t seem to find that finding, please try again.  Did you omit the +/-?'
       return False
 
 
   def print_findings(self):
-
-    # @todo alternate colors of findings, plus/minus
-    #
-    # here is some template code from another project
-    #
-    #from termcolor import colored
-
-    ## markup rules
-    #markup = \
-    #[
-      #['(findings[/]?|impression[/]?|conclusion[/]?[s:]*)','white'],
-      #['(lung[s]?)','magenta'],
-      #['(((no\s*)|(left\s*)|(right\s*)|(upper\s*)|(lower\s*)|(lingula\s*)|(middle\s*)|(lobe\s*)|(hyp(o|er)dense\s*)|(apical\s*)|(evidence\s*)|(suspicious\s*)|(enhancing\s*)|(new\s*)|((non\-?)?calcified\s*)|(bilateral\s*)|(spiculated\s*)|(small\s*)|(satellite\s*))*(pulmonary\s*)?nodule[s]?|opacification[s]?|opacit(y|ies)|(hypo)?densit(y|ies))','green'],
-      #['([\d\.x\-\s]+[cm]m)','blue'],
-      #['( no[t]? |fails to demonstrate)','red'],
-    #]
 
     self.logger.debug('printing findings')
     print '#################\nFindings so far\n#################\n'
@@ -183,8 +176,9 @@ class BayesInternsist:
 
     joined = pd.DataFrame.merge(self.symptoms,self.kb.findings,left_on='finding_id',right_on='id')[['negation_status_human','mx']]
     for index, row in joined.iterrows():
-      print '\t',row['negation_status_human'],row['mx'].lower()
-
+      text = '\t' + row['negation_status_human'] + ' ' + row['mx'].lower()
+      print colored(text,'green')
+    print
 
   ####
   # add a finding to the symptoms frame
