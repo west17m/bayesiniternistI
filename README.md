@@ -1,5 +1,7 @@
 # Bayes 315 Team Project
 
+![Screenshot](https://raw.githubusercontent.com/west17m/bayesiniternistI/master/screenshot.png)
+
 This is the Bayesian implementation of InternistI knowledge base.
 
 ## Quickstart
@@ -27,5 +29,3 @@ This is the Bayesian implementation of InternistI knowledge base.
 * pandas
 * numpy
 * termcolor
-
-![Screenshot](https://raw.githubusercontent.com/west17m/bayesiniternistI/master/screenshot.png)
