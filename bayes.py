@@ -158,6 +158,23 @@ class BayesInternsist:
 
 
   def print_findings(self):
+
+    # @todo alternate colors of findings, plus/minus
+    #
+    # here is some template code from another project
+    #
+    #from termcolor import colored
+
+    ## markup rules
+    #markup = \
+    #[
+      #['(findings[/]?|impression[/]?|conclusion[/]?[s:]*)','white'],
+      #['(lung[s]?)','magenta'],
+      #['(((no\s*)|(left\s*)|(right\s*)|(upper\s*)|(lower\s*)|(lingula\s*)|(middle\s*)|(lobe\s*)|(hyp(o|er)dense\s*)|(apical\s*)|(evidence\s*)|(suspicious\s*)|(enhancing\s*)|(new\s*)|((non\-?)?calcified\s*)|(bilateral\s*)|(spiculated\s*)|(small\s*)|(satellite\s*))*(pulmonary\s*)?nodule[s]?|opacification[s]?|opacit(y|ies)|(hypo)?densit(y|ies))','green'],
+      #['([\d\.x\-\s]+[cm]m)','blue'],
+      #['( no[t]? |fails to demonstrate)','red'],
+    #]
+
     self.logger.debug('printing findings')
     print '#################\nFindings so far\n#################\n'
     if len(self.symptoms) == 0:
