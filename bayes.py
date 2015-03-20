@@ -10,6 +10,7 @@ import os
 import pandas as pd
 import argparse
 import logging
+import numpy as np
 
 class BayesInternsist:
 
@@ -39,8 +40,9 @@ class BayesInternsist:
     self.setup_logging()
     self.logger.debug('started logger')
 
-    symptoms = pd.DataFrame(columns=['pos_neg','symptom'])
+    self.symptoms = pd.DataFrame(columns=['negation_status_human','negation_status_int', 'finding_id'])
     self.open_kb()
+    self.findings = pd.DataFrame()
 
   ####
   # open knowledge base
@@ -77,6 +79,7 @@ class BayesInternsist:
     string = ""
     s = [
       "command help",
+      "+/- symptom",
       "?  - display this message",
       "q  - quit",
       ]
@@ -88,11 +91,11 @@ class BayesInternsist:
   ####
   # show prompt
   ####
-  def get_user_choice(self):
+  def get_user_choice(self,prompt):
     self.logger.debug('soliciting user choice')
 
     # Let users know what they can do.
-    sys.stdout.write('enter symptom (? for help) # ')
+    sys.stdout.write(prompt)
     return raw_input("")
 
   ####
@@ -100,8 +103,69 @@ class BayesInternsist:
   ####
   def validate(self,string):
     self.logger.debug('validating user input of ' + string)
-    # @todo insert validation logic
-    return True
+    p = re.compile('^\s*(\+|\-)\s+(.*)')
+    match = p.match(string)
+    if match:
+      self.logger.debug('matched ' + string)
+      negation_status = match.group(1)
+      finding = match.group(2).upper()
+      t = self.kb.findings[self.kb.findings['mx'].str.contains(finding)]
+
+      # creating choices
+      self.logger.debug('creating choices table')
+      choices = pd.DataFrame()
+      choices['choice'] = np.array(range(1,len(t)+1))
+      choices['id'] = t['id'].values
+      choices['finding'] = t['mx'].values
+
+      self.logger.debug('printing user choices')
+      for index, row in choices.iterrows():
+        print row['choice'],'\t',row['finding'].lower()
+
+      self.logger.debug('waiting for user response')
+      number = self.get_user_choice('choose number of finding: ')
+
+      # @todo ensure numeric input and of reasonable range
+
+      t = choices[choices['choice'] == int(number)]
+      id = t['id'].values[0]
+
+      negation_status_int = None
+      if negation_status == '+':
+        negation_status_int = 1
+      elif negation_status == '-':
+        negation_status_int = 0
+      else:
+        self.logger.error('expected +/-, got ' + negation_status)
+        sys.exit(1)
+
+      self.symptoms = self.symptoms.append([{'negation_status_human':negation_status,'negation_status_int':negation_status_int,'finding_id':id}])
+
+      # print findings
+      self.print_findings()
+
+      # kb_findings['choice'] =
+      #print choices
+
+      # print kb_findings
+      return True
+    else:
+      self.logger.debug('unmatched ' + string)
+      print 'I can\'t seem to find that finding, please try again'
+      return False
+
+
+  def print_findings(self):
+    self.logger.debug('printing findings')
+    print '#################\nFindings so far\n#################\n'
+    if len(self.symptoms) == 0:
+      print '\tnone'
+      return
+
+    joined = pd.DataFrame.merge(self.symptoms,self.kb.findings,left_on='finding_id',right_on='id')[['negation_status_human','mx']]
+    for index, row in joined.iterrows():
+      print '\t',row['negation_status_human'],row['mx'].lower()
+
 
   ####
   # add a finding to the symptoms frame
@@ -140,18 +204,22 @@ class BayesInternsist:
     os.system('clear')
 
     print self.title
+    self.print_findings()
     print self.instructions
     quit = False
 
     while not quit:
       self.logger.debug('getting additional finding')
-      command = self.get_user_choice()
+      command = self.get_user_choice('enter symptom (? for help) # ')
 
       if command == 'q':
         self.logger.debug('received quit command')
         quit = True
       elif command == '?':
         self.print_help()
+      elif command == '':
+        self.process()
+        quit = True
       else:
         if not self.validate(command):
           # if illegal input
@@ -165,6 +233,10 @@ class BayesInternsist:
   def datastructures(self):
     self.kb.pprint()
 
+  def process(self):
+    # at this point, findings dataframe should be filled
+    print "processing logic"
+    print self.symptoms
 
 ###############################################################################
 # BayesKB
