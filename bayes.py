@@ -5,6 +5,7 @@
 ###############################################################################
 
 import sys
+import re
 import os
 import pandas as pd
 import argparse
@@ -28,6 +29,8 @@ class BayesInternsist:
   diseases = None
   findings = None
 
+  kb = None
+
   ####
   # constructor
   ####
@@ -45,38 +48,7 @@ class BayesInternsist:
   def open_kb(self):
 
     self.logger.debug('attempting to open knowledge base')
-
-    # @todo check for parent directory
-
-    # check to see if pickle files exists
-    if os.path.isfile(self.diseases_dat_path):
-      self.logger.debug('loading disease kb from saved file')
-      self.diseases = pd.io.pickle.read_pickle(self.diseases_dat_path)
-    elif os.path.isfile(self.diseases_txt_path):
-      self.logger.debug('parsing disease kb from text file')
-      # @todo parse disease txt file
-      self.logger.debug('saving disease kb binary to disk')
-      # self.diseases.to_pickle(self.diseases_dat_path)
-    else:
-      self.logger.debug('cannot find disease kb in either ' + \
-        self.diseases_txt_path + ' or ' + self.diseases_txt_path)
-      sys.exit(1)
-
-    # check to see if pickle files exists
-    if os.path.isfile(self.findings_dat_path ):
-      self.logger.debug('loading findings kb from saved file')
-      self.diseases = pd.io.pickle.read_pickle(self.findings_dat_path)
-    elif os.path.isfile(self.findings_txt_path):
-      self.logger.debug('parsing findings kb from text file')
-      # @todo parse findings txt file
-      self.logger.debug('saving findings kb binary to disk')
-      # self.findings.to_pickle(self.findings_dat_path)
-    else:
-      self.logger.debug('cannot find findings kb in either ' + \
-        self.findings_txt_path + ' or ' + self.findings_txt_path)
-      sys.exit(1)
-
-
+    self.kb = BayesKB()
 
   ####
   # setup_logging
@@ -190,6 +162,164 @@ class BayesInternsist:
           self.add_finding(command)
           pass
 
+  def datastructures(self):
+    self.kb.pprint()
+
+
+###############################################################################
+# BayesKB
+# @author Ivo Violich
+# migrated from baye_import.py
+#
+###############################################################################
+class BayesKB:
+
+  # dataframe
+  # [id]  [finding_text]
+  findings = None
+
+  # dataframe
+  # [id]  [dx_text]
+  diseases = None
+
+  # dataframe
+  # [id]  [IM]  [TY]
+  frequencies = None
+
+  # dataframe
+  # [DX id]  [LINK ID]  [LINK ??] [NPV] [PPV]
+  disease_linkage = None
+
+  # dataframe
+  # [DX id]  [MX ID]  [NPV] [PPV]
+  disease_finding_linkage = None
+
+  logger = None
+
+  ####
+  # constructor
+  ####
+  def __init__(self):
+    # @todo allow logging level and file to be passed to constructor
+    self.setup_logging()
+    self.logger.debug('KB started logger')
+    self.parse()
+
+  ####
+  # setup_logging
+  ####
+  def setup_logging(self):
+    # create logging framework
+    # @see http://victorlin.me/posts/2012/08/26/good-logging-practice-in-python
+    self.logger = logging.getLogger(__name__)
+    self.logger.setLevel(logging.DEBUG)
+
+    # create a file handler
+    handler = logging.FileHandler('bayes.log')
+
+    # create a logging format
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+
+    # add the handlers to the logger
+    self.logger.addHandler(handler)
+
+  def parse(self):
+    # @todo ensure directory data is present
+    # @todo ensure files are present and if not prompt to dl from Oak
+    # @todo move text name to constructor
+    # @todo add logging to text file
+    # @todo pickle and cache to provide (marginal) speed up
+
+    self.logger.debug('started KB.parse')
+
+    self.logger.debug('opening files')
+    findings = open('data/Findings_for_2015_decision_support_exercise_v03.txt')
+    diseases = open('data/Diseases_for_2015_decision_support_exercise_v03.txt')
+
+    sx_map = {}
+    IM_TY = {}
+
+    self.logger.debug('started parsing findings file')
+    for line in findings:
+      line = line.rstrip('\r\n')
+      if (re.match('MX', line)):
+        line_list = line.split(None, 2)
+        sx_map[line_list[1]] = line_list[2]
+      else:
+        line_list = line.split(None, 4)
+        IM_TY[line_list[0]] = {line_list[1]:line_list[2],
+          line_list[3]:line_list[4]}
+
+    dz_map = {}
+    dz_mx = []
+    dz_lk = []
+
+    self.logger.debug('started parsing diseases')
+    for line in diseases:
+      line = line.rstrip('\r\n')
+      if (re.match('DX', line)):
+        line_list = line.split(None, 2)
+        dz_map[line_list[1]] = line_list[2]
+        dz_set = line_list[1]
+      elif (re.match('MX', line)):
+        line_list = line.split(None, 3)
+        dz_mx.append(
+                {
+                'DX':dz_set,
+                'MX':line_list[2],
+                'PPV':list(line_list[1])[0],
+                'NPV':list(line_list[1])[1]
+                }
+                )
+      elif (re.match('LINK', line)):
+        line_list = line.split(None, 4)
+        dz_lk.append(
+                {
+                'DX':dz_set,
+                'LINK':line_list[3],
+                'LINK_t':line_list[1],
+                'PPV':list(line_list[2])[0],
+                'NPV':list(line_list[2])[1]
+                }
+                )
+        dz_map[line_list[3]] = line_list[4]
+
+    findings.close()
+    diseases.close()
+
+    self.logger.debug('formatting high level data structures')
+
+    # create findings
+    self.findings = pd.DataFrame()
+    self.findings['id'] = sx_map.keys()
+    self.findings['mx'] = sx_map.values()
+    self.findings = self.findings.convert_objects(convert_numeric=True).sort(['mx','id'])
+
+    # create diseases
+    self.diseases = pd.DataFrame()
+    self.diseases['id'] = dz_map.keys()
+    self.diseases['dx'] = dz_map.values()
+    self.diseases= self.diseases.convert_objects(convert_numeric=True).sort(['dx','id'])
+
+    # frequency mapping
+    self.frequencies = pd.DataFrame.from_dict(IM_TY).transpose()
+    self.frequencies['id'] = self.frequencies.index
+    self.frequencies = self.frequencies[['id','IM','TY']].convert_objects(convert_numeric=True).sort(['id'])
+
+    # disease linkage
+    self.disease_linkage = pd.DataFrame.from_dict(dz_lk).convert_objects(convert_numeric=True).sort('DX')
+
+    # disease-finding linkage
+    self.disease_finding_linkage = pd.DataFrame.from_dict(dz_mx).convert_objects(convert_numeric=True).sort(['DX','MX'])
+
+  def pprint(self,n=10):
+    self.logger.debug('printing data structures')
+    print '\n\n## FINDINGS ##\n',self.findings.head(n)
+    print '\n\n## DISEASES ##\n',self.diseases.head(n)
+    print '\n\n## FREQUENCIES ##\n',self.frequencies.head(n)
+    print '\n\n## DISEASE LINKAGES ##\n',self.disease_linkage.head(n)
+    print '\n\n## DISEASE LINKAGES ##\n',self.disease_finding_linkage.head(n)
 
 ###############################################################################
 #
@@ -202,6 +332,7 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   group = parser.add_mutually_exclusive_group()
   group.add_argument("-i","--interactive", help="launch interactive mode",action="store_true")
+  group.add_argument("-d","--datastructures", help="show data structures",action="store_true")
   group.add_argument("-t","--test", help="perform unit testing",action="store_true")
   parser.add_argument("-v","--verbose", help="increase output verbosity",action="store_true")
   args = parser.parse_args()
@@ -209,7 +340,7 @@ if __name__ == '__main__':
   # @todo add log level to commandline
 
   # set defaults
-  (verbose,test,interactive) = (False,False,True)
+  (verbose,test,interactive,datastructures) = (False,False,True,False)
   if args.verbose:
     verbose = True
   if args.test:
@@ -218,6 +349,10 @@ if __name__ == '__main__':
   if args.interactive:
     test = False
     interactive = True
+  if args.datastructures:
+    test = False
+    interactive = False
+    datastructures = True
 
   # create object
   bi = BayesInternsist()
@@ -229,6 +364,9 @@ if __name__ == '__main__':
   elif interactive:
     # run in interactive mode
     bi.interactive()
+  elif datastructures:
+    # show data structures
+    bi.datastructures()
   else:
     bi.logger.error('illegal argument sent')
     raise Exception('illegal argument sent, terminating')

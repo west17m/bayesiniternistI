@@ -4,24 +4,24 @@ from pandas import *
 import re
 
 #open data files, including prevelence file created from screenshot of
-#pdf provided.  Files must be named as they are below and 
+#pdf provided.  Files must be named as they are below and
 #in a directory named "data".
 findings = open('data/Findings_for_2015_decision_support_exercise_v03.txt')
 diseases = open('data/Diseases_for_2015_decision_support_exercise_v03.txt')
 prevelence = open('data/prevalence_decision_support_2015.txt')
 
 #create empty dicts for symptom mapping and import/type info
-sx_map = {} 
+sx_map = {}
 IM_TY = {}
 for line in findings: #parse file by line
 	#strip any trailing charaters from each line
-	line = line.rstrip('\r\n') 
+	line = line.rstrip('\r\n')
 	#use regex to match lines with 'MX' at start
-	if (re.match('MX', line)): 
+	if (re.match('MX', line)):
 		#split line by default (whitespace), limit splits to 2
 		#save split line in array "line_split"
-		line_list = line.split(None, 2) 
-		#create key-value pair in sx_map using 
+		line_list = line.split(None, 2)
+		#create key-value pair in sx_map using
 		#elements 1 and 2 of line_split
 		sx_map[line_list[1]] = line_list[2]
 	else:   #all other lines split to create import\type dict
@@ -77,8 +77,8 @@ prevelence.close()
 
 #create data frames from dicts and lists created above
 IM_TY_df = DataFrame(IM_TY)
-#sx_map_df = DataFrame(sx_map.items(), columns=['mx_code', 'mx_def']) 
-sx_map_df = DataFrame(sx_map.values(),index=sx_map.keys(), columns=['mx']) 
+#sx_map_df = DataFrame(sx_map.items(), columns=['mx_code', 'mx_def'])
+sx_map_df = DataFrame(sx_map.values(),index=sx_map.keys(), columns=['mx'])
 dz_mx_df = DataFrame(dz_mx)
 dz_lk_df = DataFrame(dz_lk)
 #dz_map_df = DataFrame(dz_map.items(), columns=['dx_code', 'dx_def])
