@@ -28,4 +28,4 @@ This is the Bayesian implementation of InternistI knowledge base.
 * numpy
 * termcolor
 
-![Screenshot](hhttps://github.com/west17m/bayesiniternistI/blob/master/screenshot.png)
+![Screenshot](https://raw.githubusercontent.com/west17m/bayesiniternistI/master/screenshot.png)
