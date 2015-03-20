@@ -1,3 +1,10 @@
+####################################################################
+# deprecated on 2015-03-20 12:08                                   #
+# Reason: all code now in bayes.py, call bayes.py -d to display    #
+#         dataframe data  in console                               #
+####################################################################
+
+
 import numpy as np
 import pandas as pd
 from pandas import *
@@ -6,7 +13,7 @@ import re
 findings = open('data/Findings_for_2015_decision_support_exercise_v03.txt')
 diseases = open('data/Diseases_for_2015_decision_support_exercise_v03.txt')
 
-sx_map = {} 
+sx_map = {}
 IM_TY = {}
 for line in findings:
 	line = line.rstrip('\r\n')
@@ -54,8 +61,8 @@ diseases.close()
 
 IM_TY_df = DataFrame(IM_TY)
 #print IM_TY_df.T.loc['391']
-#sx_map_df = DataFrame(sx_map.items(), columns=['mx_code', 'mx_def']) 
-sx_map_df = DataFrame(sx_map.values(),index=sx_map.keys(), columns=['mx']) 
+#sx_map_df = DataFrame(sx_map.items(), columns=['mx_code', 'mx_def'])
+sx_map_df = DataFrame(sx_map.values(),index=sx_map.keys(), columns=['mx'])
 #print sx_map_df.loc['190']
 dz_mx_df = DataFrame(dz_mx)
 #print dz_mx_df
@@ -64,3 +71,8 @@ dz_lk_df = DataFrame(dz_lk)
 #dz_map_df = DataFrame(dz_map.items(), columns=['dx_code', 'dx_def])
 dz_map_df = DataFrame(dz_map.values(),index=dz_map.keys(), columns=['dx'])
 #print dz_map_df.loc['60']
+
+print 'sx_map_df\n',sx_map_df.head()
+print 'dz_mx_df\n',dz_mx_df.head()
+print 'dz_lk_df\n',dz_lk_df.head()
+print 'IM_TY_df\n',IM_TY_df.head()
