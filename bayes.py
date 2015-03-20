@@ -111,6 +111,11 @@ class BayesInternsist:
       finding = match.group(2).upper()
       t = self.kb.findings[self.kb.findings['mx'].str.contains(finding)]
 
+      if len(t) == 0:
+        self.logger.debug('could not find ' + finding + ' in knowledge base')
+        print 'I couldn\'t find the finding, please try again'
+        return False
+
       # creating choices
       self.logger.debug('creating choices table')
       choices = pd.DataFrame()
@@ -143,9 +148,6 @@ class BayesInternsist:
 
       # print findings
       self.print_findings()
-
-      # kb_findings['choice'] =
-      #print choices
 
       # print kb_findings
       return True
