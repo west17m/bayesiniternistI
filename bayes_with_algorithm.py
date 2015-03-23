@@ -22,11 +22,11 @@ class BayesInternsist:
   symptoms = None  # holds signs/symtpom input
   logger   = None  # logging
 
-  diseases_txt_path = '/Users/castelja/Desktop/CDS - BMIF 315/data/Diseases_for_2015_decision_support_exercise_v03.txt'
-  findings_txt_path = '/Users/castelja/Desktop/CDS - BMIF 315/data/Findings_for_2015_decision_support_exercise_v03.txt'
+  diseases_txt_path = 'data/Diseases_for_2015_decision_support_exercise_v03.txt'
+  findings_txt_path = 'data/Findings_for_2015_decision_support_exercise_v03.txt'
 
-  diseases_dat_path = '/Users/castelja/Desktop/CDS - BMIF 315/data/diseases.dat'
-  findings_dat_path = '/Users/castelja/Desktop/CDS - BMIF 315/data/findings.dat'
+  diseases_dat_path = 'data/diseases.dat'
+  findings_dat_path = 'data/findings.dat'
 
   diseases = None
   findings = None
@@ -265,25 +265,27 @@ class BayesInternsist:
     # at this point, findings dataframe should be filled
     print "processing logic"
     print self.symptoms
-    print "hellow!"
+    a = BayesKB() 
     disease = [362,351,114,187,352,441,188,192,189,616]
+    name = ['PEPTIC ULCER', 'PANCREATITIS ACUTE', 'CHOLEDOCHOLITHIASIS', 'GASTRIC CARCINOMA', 'PANCREATITIS CHRONIC', 'PYLORIC OBSTRUCTION', 'GASTRIC LYMPHOMA', 'GASTROINTESTINAL SARCOIDOSIS', 'GASTRITIS GIANT HYPERTROPHIC <MENETRIERS>', 'ANISAKIASIS']
     prev = [.1,.01,.001,.001,.001,.0001,.0001,.0001,.0001,.00001]
-    data = {'Disease': disease,'Prevalence': prev}
-    result=pd.DataFrame(data,columns=['Disease','Prevalence'])
+    data = {'Disease': disease,'Name': name,'Prevalence': prev}
+    result=pd.DataFrame(data,columns=['Disease','Name','Prevalence'])
     result=result.set_index('Disease')
     result['Numerator']=result['Prevalence']
     result['Denominator']=1-result['Prevalence']
     result['Tracker']=0
     for mx in range(len(self.symptoms)):
         for index in range(len(disease)):
-            sign = self.symptoms[mx,'negation_status_human']
-            row = dz_mx[(dz_mx.DX == disease[index])&(dz_mx.MX == self.symptoms[mx])]
+            sign = self.symptoms.iat[mx,0]
+            symp = int(self.symptoms.iat[mx,2])
+            row = a.disease_finding_linkage[(a.disease_finding_linkage.DX == disease[index])&(a.disease_finding_linkage.MX == symp)]
             if row.empty:()
             else:   
-                ppv=row.iloc[0]['PPV']
+                ppv=row.iloc[0]['PPV']*0.2
                 if ppv==0:()
                 else: 
-                    sens = row.iloc[0]['NPV']
+                    sens = row.iloc[0]['NPV']*0.2
                     prev = result.loc[disease[index],'Prevalence']
                     fdr = (((sens*prev)/ppv)-(sens*prev))/(1-prev)
                     result.loc[disease[index],'Tracker'] += 1
@@ -298,9 +300,7 @@ class BayesInternsist:
 
     result = result[result.Tracker != 0]
     result['Results']=result['Numerator']/(result['Numerator']+result['Denominator'])
-
-    #result = result.sort(['Result'],ascending=[0])
-    print result   
+    print result.sort('Results', ascending=False)   
     
 
 ###############################################################################
